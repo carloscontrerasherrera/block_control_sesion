@@ -20,18 +20,13 @@
 			$sql_us='SELECT * FROM {user} WHERE id in (SELECT r.userid FROM mdl_role_assignments r, mdl_context o where o.id=r.contextid and o.instanceid='.$COURSE->id.$filtro_us.')';
 		else
 			$sql_us='SELECT * FROM {user} WHERE id in (SELECT r.userid FROM {groups_members} r WHERE r.groupid='.$grupo.')';
-		//print $sql_us;
 		if ($usuarios=$DB->get_records_sql($sql_us))
 		{
 			
 			$hoy=obtener_inicio($fecha,$ini);
 			$manana=obtener_final($hoy,$num_dias);
-			//print $num_dias." ".$fecha_fin." ".$manana->format($a_fecha.' H:i')."  ";
 			if (($fecha_fin!="now" || $fecha_fin=='') && $num_dias==1)
 				$manana=obtener_final(obtener_inicio($fecha_fin,$ini),1);
-			//print $manana->format($a_fecha.' H:i');
-			
-			// Cabeceras de cada tipo de tabla
 			if ($tipo_tabla<=1)
 			{
 				$dias_valor=($manana->diff($hoy))->d;
@@ -93,14 +88,12 @@
 			}else
 			if ($tipo_tabla==4)
 			{
-				//print_object($curso);
 				array_push($campos,get_string('curso', 'block_control_sesion').' '.$curso.'-'.($curso+1));
 				array_push($filas, $campos);
 				$campos=array();
 				array_push($campos,"<th>".get_string('alumno', 'block_control_sesion'));
 				for($x=1;$x<=12;$x++)
 				{	
-					//sustituir year por curso
 					$res=ajuste_mes_curso($x,$curso);
 					$url_detalle_mes = new moodle_url('/blocks/control_sesion/view.php' , array('id'=>$instancia,'c' => $COURSE->id,'t' => 2,'u' => 0,"f"=>$res["year"].'-'.$res["mes"].'-01',"ff"=>$res["year"].'-'.$res["mes"].'-'.dias_mes($res["mes"],$res["year"]),"g"=>$grupo));
 					$texto='<a href="'.$url_detalle_mes.'">'.substr(nombre_mes($res["mes"]),0,3).'</a>';
@@ -124,9 +117,7 @@
 				if ($usuario!=0 && $usuario!=$u->id)
 					continue;
 				$campos=array();
-				//$sql='FROM mdl_logstore_standard_log m where userid='.$u->id.' AND courseid='.$COURSE->id.' AND '.campo_fecha().'>="'.$hoy->format('Y-m-d H:i:s').'" AND '.campo_fecha().'<="'.$manana->format('Y-m-d H:i:s').'"';
 				$sql='FROM mdl_logstore_standard_log m where userid='.$u->id.' AND courseid='.$COURSE->id.' AND (m.timecreated)>="'.fecha_servidor($hoy->format('Y-m-d H:i:s')).'" AND (m.timecreated)<="'.fecha_servidor($manana->format('Y-m-d H:i:s')).'"';
-				//print $sql;
 				$hora_ini='';
 				$intervalo='';
 				if ($hini=$DB->get_record_sql('SELECT MIN(timecreated) timecreated '.$sql))
@@ -141,17 +132,7 @@
 						}
 					}
 				}
-/* 				if ($hini=$DB->get_record_sql($sql.' LIMIT 1'))
-					$hora_ini=date("H:i:s",$hini->timecreated);
-				$hora_fin='';
-				$intervalo='';
-				if ($hfin=$DB->get_record_sql($sql.' ORDER BY m.timecreated DESC LIMIT 1'))
-					$hora_fin=date("H:i:s",$hfin->timecreated);
- */				
-//return $filas;
-				// Datos de cada usuario. Contenido de las tablas
-				
-				//color de la celda resaltada según límites
+
 				if ($tipo_tabla==0)
 				{
 					$res=tiempo_usuario_dia($u->id,$hoy->format('Y-m-d'),$ini,$interval,1,$manana->format('Y-m-d'));
@@ -179,8 +160,6 @@
 				}
 				if ($tipo_tabla==1)
 				{
-					//$paso=tiempo_usuario_dia($u->id,$hoy->format('Y-m-d'),$ini,$interval,$num_dias,1,'');
-					//array_push($campos,"Detalle de movimientos");
 					$res=tiempo_usuario_dia($u->id,$hoy->format('Y-m-d'),$ini,$interval,1,$manana->format('Y-m-d'));
 					$tiempo="&nbsp;";
 					if ($res["total"]!=0)
@@ -191,7 +170,6 @@
 						$t= '<font color="red">'.get_string('sin_tiempo_dia', 'block_control_sesion').'</font>	<br>';
 					if ($ampliado)
 					{
-						//print ($res["pasos"]);
 						$campos=array("<azul>".html_writer::tag('div', '<b>'.$u->firstname." ".$u->lastname),
 									intval($res["interacciones"])." ".get_string('interacciones', 'block_control_sesion'),$t);
 						array_push($filas, $campos);
@@ -223,7 +201,6 @@
 					while ($h<=$fin)
 					{
 						$res=tiempo_usuario_dia($u->id,$h->format('Y-m-d'),$ini,$interval,1,'');
-						//array_push($campos,$h->format('d-m'));
 						$t=$t+$res["total"];
 						$tiempo="&nbsp;";
 						if ($res["total"]!=0)
@@ -290,7 +267,6 @@
 				{
 					$t=0;
 					$hoy=new DateTime($year.'-'.$mes.'-01');
-					//$hoy=new DateTime('2020-07-01');
 					$dias=date ("t",strtotime($hoy->format('Y-m-d')));
 					array_push($campos,'<b>'.$u->firstname." ".$u->lastname[0].'.</b>');
 					$hoy=new DateTime($hoy->format('Y-m').'-01');
@@ -354,7 +330,6 @@
 		$dia=new DateTime($fecha." ".$hora_actual);
 		$limite=new DateTime($dia->format('Y-m-d').' '.$ini.':00:00');
 		$hoy = $limite;
-		//print_object($hoy);
 		$manana=new DateTime($limite->format('Y-m-d H:i:s')."+ 1 days");
 		if ($dia<$limite && $dia==$hoy)
 		{
@@ -405,18 +380,14 @@
 		else
 		{
 			$manana=new DateTime($fecha_fin.' '.$ini.':00:00', core_date::get_user_timezone_object());
-			//$manana=obtener_final($fin,1);
 		}
-		//$sql='SELECT * FROM mdl_logstore_standard_log m where userid='.$usuario.' AND courseid='.$COURSE->id.' AND '.campo_fecha().'>="'.$hoy->format('Y-m-d H:i:s').'" AND '.campo_fecha().'<="'.$manana->format('Y-m-d H:i:s').'"';
 		$sql='SELECT * FROM mdl_logstore_standard_log m where userid='.$usuario.' AND courseid='.$COURSE->id.' AND from_unixtime(m.timecreated)>="'.fecha_servidor($hoy->format('Y-m-d H:i:s')).'" AND from_unixtime(m.timecreated)<="'.fecha_servidor($manana->format('Y-m-d H:i:s')).'"';
-		//print $sql;
 		$total=0;
 		$total_int=0;
 		$paso="";
 		$resultado["inicio"]='';
 		$resultado["final"]='';
 		$detalles=array();
-		//date_default_timezone_set('europe/madrid');
 		if ($eventos=$DB->get_records_sql($sql.' ORDER BY m.timecreated'))
 		{
 			$ant=new DateTime();
@@ -430,9 +401,6 @@
 			{
 				$actual=new DateTime();
 				$actual->setTimestamp($ev->timecreated);
-				//print_object(usergetdate($ev->timecreated));
-				//print(userdate(usergetdate ($actual), '%d/%m/%Y %H:%M:%S').' + ');
-				//print( get_string('strftimedatetime', 'core_langconfig').' - ');
 				if ($inicio==0)
 				{
 					$inicio=1;
@@ -443,7 +411,6 @@
 				{
 					$diff = $actual->diff($ant);
 					$segundos=($diff->h * 3600 ) + ( $diff->i * 60 ) + $diff->s;
-					//print("**".$actual->format($a_fecha.' H:i:s')."**($segundos)<br>");
 					if ($segundos<=($interval *60))
 					{
 						if ($primero=="")
@@ -454,7 +421,6 @@
 					}
 					else
 					{
-						//print("[".($interval * 60)."]");
 						if ($ant_segundos>0)
 						{
 							$paso=$paso.$primero." → ".$ant->format($a_fecha.' H:i:s');
@@ -505,7 +471,6 @@
 	function texto_tabla_datos($valores)
 	{
 		$datos=$valores["datos"];
-		//print_object($datos);
 		$dias_valor=$valores["dias_valor"];
 		$resultado="";
 		$tipo="th";
@@ -637,7 +602,6 @@
 	function campo_fecha()
 	{
 		//genera el texto para poner en el campo fecha para el ajuste horario ya que MySQL guarda en UTC y la consulta devuelve en función del pais del servidor
-		//print("UTC".(-($DIF_MY_UTC-2)));
 		return 'DATE_ADD(from_unixtime(m.timecreated),INTERVAL '.horas_desfase().' HOUR)';
 	}
 	function horas_desfase()
@@ -666,7 +630,6 @@
 	}
 	function obtener_config($instancia)
 	{
-		//print_object($instancia);
 		global $COURSE,$DB;
 		$blockrecord = $DB->get_record('block_instances', array('blockname' => 'control_sesion','id' => $instancia), '*', MUST_EXIST);
 		$blockinstance = block_instance('control_sesion', $blockrecord);
@@ -675,7 +638,6 @@
 	function color_celda($valor,$dias_valor)
 	{
 		global $config;
-		//$l_red=
 		if (!$config->mostrarcol)
 			return "<sincolor>";
 		$v=intdiv($valor,$dias_valor);
@@ -699,7 +661,6 @@
 	function ajuste_mes_curso($n,$curso)
 	{
 		global $config;
-		//print_object($n.$curso.$config->mes_ini);
 		$res["mes"]=$config->mes_ini+$n-1;
 		$res["year"]=$curso;
 		if ($res["mes"]>12)

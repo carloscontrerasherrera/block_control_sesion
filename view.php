@@ -4,17 +4,13 @@ require_once($CFG->dirroot.'/blocks/control_sesion/lib.php');
 require_once($CFG->dirroot.'/blocks/control_sesion/filtro_form.php');
 require_once($CFG->libdir.'/excellib.class.php');
 global $CFG,$DB,$USER,$OUTPUT,$PAGE,$COURSE,$grupo_filtro,$instancia; 
-//Visualización de datos
-// Check for all required variables.
 $usuario=0;
 $f="now";
 $f="now + 7 DAYS";
-//$fecha=new DateTime("now");
 $courseid = required_param('c', PARAM_INT);
 $instancia = required_param('id', PARAM_INT); 
 $viewpage = optional_param('viewpage', false, PARAM_BOOL);
 $config=obtener_config($instancia);
-//print_object($config);
 $ini=$config->ini;
 $interval =$config->interval;
 $mes_ini =$config->mes_ini;
@@ -33,10 +29,6 @@ $fecha = new DateTime($f);
 $fecha_fin = new DateTime($ff);
 $tipo_filtro=$tipo_tabla; 
 $grupo_filtro=$grupo; 
-// Next look for optional variables.
-//$instance = get_context_instance(CONTEXT_COURSE, 2);
-//$eguide = block_instance( 'control_sesion', $instance );
- 
 if (!$course = $DB->get_record('course', array('id' => $courseid))) {
     print_error('invalidcourse', 'control_sesion', $courseid);
 }
@@ -57,7 +49,6 @@ else
 	$PAGE->set_heading(get_string('infosesion', 'block_control_sesion')); 
 }
 $PAGE->set_url('/blocks/control_sesion/view.php', array('c' => $courseid,'id'=>$instancia));
-//$PAGE->set_pagelayout('standard');
 $PAGE->set_pagelayout('base');
 
 $settingsnode = $PAGE->settingsnav->add("Sesiones");
@@ -96,12 +87,10 @@ switch ($tipo_tabla)
 	
 if ($fromform = $filtro->get_data()) 
 {
-	//print_object($fromform);
 	$mes=$fromform->mes;
 	$year=$fromform->year;
 	$curso=$fromform->curso;
 	$usuario=$fromform->usuario;
-	//$id=$fromform->usuario;
 	$grupo=$fromform->grupo;
 	$grupo_filtro=$grupo; 
 	$f = new DateTime("now");
@@ -112,10 +101,8 @@ if ($fromform = $filtro->get_data())
 		$ff->setTimestamp($fromform->fecha_fin);
 	if ($versesiones && ($tipo_tabla==0 || $tipo_tabla==3 || $tipo_tabla==4))
 		$usuario=0;
-	//echo "Datos del ".$f->format("d/m/Y")."<br>";
 	$fecha=$f;
 	$fecha_fin=$ff;
-//print "-F-".$grupo_filtro."--"."-G-".$grupo."--";
 	
 }
 		
@@ -142,14 +129,7 @@ $url_descarga = new moodle_url('/blocks/control_sesion/view.php' ,
 	array_merge($url_base,array('u' => 0,'t' => $tipo_tabla,"d"=>true)));
 echo $OUTPUT->header();
 
-		
-/* $time = time();
-echo date("d-m-Y (H:i:s)", $time);
-print_object($time);
-print_object(mktime(9,55,00,7,30,2020));
-print_object(gmmktime(9,55,00,7,30,2020));
-$seconds = date_offset_get(new DateTime);
-print $seconds / 3600; */
+
 
 echo html_writer::start_tag('div',array("class"=>"btn-group","id"=>"grupo_cabecera"));
 //if ($versesiones)

@@ -1,7 +1,6 @@
 <?php 
 //formulario para los filtros de cabecera
 require_once("{$CFG->libdir}/formslib.php");
-//require_once($CFG->dirroot.'/blocks/control_sesion/lib.php');
 
 class filtro_form extends moodleform {
     function definition() {
@@ -17,15 +16,10 @@ class filtro_form extends moodleform {
 			$grupo = optional_param('g',-1, PARAM_INT);
 			$grupo_filtro=$grupo;
 		}
-		//print "-G-".$grupo_filtro."--"."-G-".$grupo."--";
-		
-		// add display text field
-		//$mform->addElement('header', 'cabecera_filtro', "Filtros", null, false);
 		$grupos=array(get_string('todos','block_control_sesion'));
 		$ids=array(0);
 		if ($res=$DB->get_records_sql('SELECT id, name from mdl_groups g WHERE courseid='.$COURSE->id.' ORDER BY id DESC'))
 		{
-			//print "----------";
 			foreach($res as $g)
 			{
 				array_push($grupos,$g->name);
@@ -38,7 +32,6 @@ class filtro_form extends moodleform {
 		{
 			$options = array_combine($ids,$grupos);
 			$select=$mform->addElement('select', 'grupo', get_string('group'), $options);
-			//$mform->setDefault('config_grupo', 0);
 			$mform->setType('grupo', PARAM_INT);
 		}
 		else
@@ -100,7 +93,6 @@ class filtro_form extends moodleform {
 					array_push($valores,$x);
 				}
 				$options = array_combine($valores,$nombres);
-				//$options = array_combine(range($hoy->format('Y')-10,$hoy->format('Y')), range($hoy->format('Y')-10,$hoy->format('Y')));
 				$grupo_ele[] =$mform->createElement('select', 'curso', get_string('curso', 'block_control_sesion'), $options);
 				$mform->setType('curso', PARAM_INT);
 	
@@ -143,7 +135,6 @@ class filtro_form extends moodleform {
 		$mform->setDefault('year', (new DateTime("now"))->format('Y'));
 		$mform->setDefault('curso', ajuste_year_curso($hoy));
 		$grupo_ele[] =$mform->createElement('submit', 'submitbutton', get_string('filtrar','block_control_sesion'));
-		//$mform->setType('nombre', PARAM_RAW);
 		$mform->addGroup($grupo_ele, 'grupo_ele_filtro', get_string('fecha_sesion','block_control_sesion'), ' ', false);
 		
 		$mform->setAdvanced('optional');
@@ -157,12 +148,7 @@ class filtro_form extends moodleform {
 		$mform->setType('t', PARAM_RAW);
 		$mform->addElement('hidden','a',false);
 		$mform->setType('a', PARAM_RAW);
-		//$buttonarray=array();
-		//$buttonarray[] = $mform->createElement('submit', 'submitbutton', get_string('savechanges'));
-		//$buttonarray[] = $mform->createElement('reset', 'resetbutton', get_string('revert'));
-		//$buttonarray[] = $mform->createElement('cancel');
-		//$mform->addGroup($buttonarray, 'buttonar', '', ' ', false);		
-		//$this->add_action_buttons();
+		
 	}
 }	
 		

@@ -11,7 +11,6 @@ class block_control_sesion extends block_base {
 	public function get_content() {
 		global $COURSE, $DB, $PAGE,$USER;
 		$context = context_course::instance($COURSE->id);		
-		//date_default_timezone_set('UTC');
 		if ($this->content !== null) {
 		  return $this->content;
 		}
@@ -22,16 +21,12 @@ class block_control_sesion extends block_base {
 		if (! empty($this->config->text)) {
 			$this->content->text = $this->config->text;
 		}	 
-		// Check to see if we are in editing mode
-		//$canmanage = $PAGE->user_is_editing($this->instance->id);
-		// Check to see if we are in editing mode and that we can manage pages.
 		$versesiones = has_capability('block/control_sesion:todassesiones', $context);// && $PAGE->user_is_editing($this->instance->id);
 		$misesion = has_capability('block/control_sesion:misesion', $context);
 		$id=0;
 		if (!$versesiones)
 			$id=$USER->id;
 		$this->content->text .=texto_tabla_datos(lista_usuarios($instancia,$USER->id,false,1,(new DateTime("now"))->format("Y-m-d"),1,1,2020,2020,0,(new DateTime("now"))->format("Y-m-d")));
-		//print_object($this->config);
 		if (empty($this->config->visibleus))
 		{
 			//bloque no configurado todavía
@@ -59,11 +54,7 @@ class block_control_sesion extends block_base {
 			}  
 		}
 	}
-	
-/*	public function instance_delete() {
-		global $DB;
-		$DB->delete_records('block_control_sesion', array('blockid' => $this->instance->id));
-	}*/
+
 }
 
 

@@ -1,0 +1,10 @@
+/*estilos propios del bloque*/
+.table th{
+/*	color:red !important;*/
+}
+.control_sesion #grupo_cabecera{
+    margin:10px;
+}
+.control_sesion .corto{
+	max-width:90px;
+}

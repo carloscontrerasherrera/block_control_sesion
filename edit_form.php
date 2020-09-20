@@ -1,5 +1,6 @@
 <?php
 //código para configurar la configuración del bloque
+//$interval = required_param('aroleid', PARAM_INT);
 class block_control_sesion_edit_form extends block_edit_form {
  
     protected function specific_definition($mform) {
@@ -41,6 +42,7 @@ class block_control_sesion_edit_form extends block_edit_form {
 		$ids=array(0);
 		if ($res=$DB->get_records_sql('SELECT id, name from mdl_groups g WHERE courseid='.$COURSE->id.' ORDER BY id DESC'))
 		{
+			//print "----------";
 			foreach($res as $g)
 			{
 				array_push($grupos,$g->name);
@@ -49,6 +51,7 @@ class block_control_sesion_edit_form extends block_edit_form {
 		}	
 		$options = array_combine($ids,$grupos);
 		$select=$mform->addElement('select', 'config_grupo', get_string('defaultgroup', 'block_control_sesion'), $options);
+		//$mform->setDefault('config_grupo', 0);
 		$mform->setType('config_grupo', PARAM_INT);
 		$mform->addElement('selectyesno', 'config_mostrarcol', get_string('mostrarcol', 'block_control_sesion'));
 		$mform->setDefault('config_mostrarcol', 1);
@@ -66,6 +69,10 @@ class block_control_sesion_edit_form extends block_edit_form {
 		$mform->hideIf('config_red', 'config_mostrarcol', 'eq', 0);
 		$mform->hideIf('config_orange', 'config_mostrarcol', 'eq', 0);
 		$mform->hideIf('config_yellow', 'config_mostrarcol', 'eq', 0);
+		
+		
+		//print_object($mform->config);
+		//$mform->setDefault('grupo', $courseconfig->grupo);
     }
 }
 ?>

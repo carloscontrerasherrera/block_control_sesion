@@ -40,7 +40,7 @@ class block_control_sesion_edit_form extends block_edit_form {
 		$mform->setType('config_visibleus', PARAM_INT);
 		$grupos=array("Todos");
 		$ids=array(0);
-		if ($res=$DB->get_records_sql('SELECT id, name from mdl_groups g WHERE courseid='.$COURSE->id.' ORDER BY id DESC'))
+		if ($res=$DB->get_records_sql('SELECT id, name from {groups} g WHERE courseid='.$COURSE->id.' ORDER BY id DESC'))
 		{
 			//print "----------";
 			foreach($res as $g)

@@ -24,7 +24,7 @@ class filtro_form extends \moodleform {
 		//$mform->addElement('header', 'cabecera_filtro', "Filtros", null, false);
 		$grupos=array(get_string('todos','block_control_sesion'));
 		$ids=array(0);
-		if ($res=$DB->get_records_sql('SELECT id, name from mdl_groups g WHERE courseid='.$COURSE->id.' ORDER BY id DESC'))
+		if ($res=$DB->get_records_sql('SELECT id, name from {groups} g WHERE courseid='.$COURSE->id.' ORDER BY id DESC'))
 		{
 			//print "----------";
 			foreach($res as $g)
@@ -53,7 +53,7 @@ class filtro_form extends \moodleform {
 			$nombres=array(get_string('todos','block_control_sesion'));
 			$usuarios=array(0);
 			if ($grupo_filtro==0)
-				$sql_us='SELECT * FROM {user} WHERE id in (SELECT r.userid FROM mdl_role_assignments r, mdl_context o where o.id=r.contextid and o.instanceid='.$COURSE->id.')';
+				$sql_us='SELECT * FROM {user} WHERE id in (SELECT r.userid FROM {role_assignments} r, {context} o where o.id=r.contextid and o.instanceid='.$COURSE->id.')';
 			else
 				$sql_us='SELECT * FROM {user} WHERE id in (SELECT r.userid FROM {groups_members} r WHERE r.groupid='.$grupo_filtro.')';
 			if ($res=$DB->get_records_sql($sql_us))

@@ -16,10 +16,20 @@
 			$interval=$config->interval;
 		if ($usuario!=0)
 			$filtro_us=" AND r.userid=".$usuario;
-		if ($grupo==0)
-			$sql_us='SELECT id, firstname, lastname FROM {user} WHERE id in (SELECT r.userid FROM mdl_role_assignments r, mdl_context o where o.id=r.contextid and o.instanceid='.$COURSE->id.$filtro_us.')';
+		if ($tipo_tabla==0)
+		{
+			if ($grupo==0)
+				$sql_us='SELECT u.id, u.firstname, u.lastname,MAX(m.timecreated)ultimo FROM {user} u LEFT JOIN {logstore_standard_log} m ON m.userid=u.id WHERE u.id in (SELECT r.userid FROM {role_assignments} r, {context} o where o.id=r.contextid and o.instanceid='.$COURSE->id.$filtro_us.') GROUP BY u.id';
+			else
+				$sql_us='SELECT u.id, u.firstname, u.lastname,MAX(m.timecreated)ultimo FROM {user} u LEFT JOIN {logstore_standard_log} m ON m.userid=u.id WHERE u.id in (SELECT r.userid FROM {groups_members} r WHERE r.groupid='.$grupo.') GROUP BY u.id';
+		}
 		else
-			$sql_us='SELECT id, firstname, lastname FROM {user} WHERE id in (SELECT r.userid FROM {groups_members} r WHERE r.groupid='.$grupo.')';
+		{
+			if ($grupo==0)
+				$sql_us='SELECT id, firstname, lastname FROM {user} WHERE id in (SELECT r.userid FROM {role_assignments} r, {context} o where o.id=r.contextid and o.instanceid='.$COURSE->id.$filtro_us.')';
+			else
+				$sql_us='SELECT id, firstname, lastname FROM {user} WHERE id in (SELECT r.userid FROM {groups_members} r WHERE r.groupid='.$grupo.')';
+		}
 		//print $sql_us;
 		if ($usuarios=$DB->get_records_sql($sql_us))
 		{
@@ -124,8 +134,8 @@
 				if ($usuario!=0 && $usuario!=$u->id)
 					continue;
 				$campos=array();
-				//$sql='FROM mdl_logstore_standard_log m where userid='.$u->id.' AND courseid='.$COURSE->id.' AND '.campo_fecha().'>="'.$hoy->format('Y-m-d H:i:s').'" AND '.campo_fecha().'<="'.$manana->format('Y-m-d H:i:s').'"';
-				$sql='FROM mdl_logstore_standard_log m where userid='.$u->id.' AND courseid='.$COURSE->id.' AND (m.timecreated)>="'.fecha_servidor($hoy->format('Y-m-d H:i:s')).'" AND (m.timecreated)<="'.fecha_servidor($manana->format('Y-m-d H:i:s')).'"';
+				//$sql='FROM {logstore_standard_log} m where userid='.$u->id.' AND courseid='.$COURSE->id.' AND '.campo_fecha().'>="'.$hoy->format('Y-m-d H:i:s').'" AND '.campo_fecha().'<="'.$manana->format('Y-m-d H:i:s').'"';
+				$sql='FROM {logstore_standard_log} m where userid='.$u->id.' AND courseid='.$COURSE->id.' AND (m.timecreated)>="'.fecha_servidor($hoy->format('Y-m-d H:i:s')).'" AND (m.timecreated)<="'.fecha_servidor($manana->format('Y-m-d H:i:s')).'"';
 				//print $sql;
 				$hora_ini='';
 				$intervalo='';
@@ -160,7 +170,8 @@
 						$tiempo=tiempo_segundos($res["total"]);
 					$url_detalle = new moodle_url('/blocks/control_sesion/view.php' , array('c'=>$COURSE->id,'id'=>$instancia,'t' => 1,'a' => true, "f"=>$fecha, "ff"=>$fecha,"u"=>$u->id,"g"=>$grupo));
 					array_push($campos,$u->firstname." ".$u->lastname);
-					array_push($campos,ultimo_inicio_usuario($u->id));
+					array_push($campos,date(get_string('abrev_fecha', 'block_control_sesion')." H:i:s",$u->ultimo));
+					//array_push($campos,ultimo_inicio_usuario($u->id));
 					array_push($campos,$res["inicio"]);
 					array_push($campos,$res["final"]);
 					
@@ -380,8 +391,8 @@
 	{
 		global $COURSE,$DB;
 		$a_fecha=get_string('abrev_fecha', 'block_control_sesion');
-		//$sql='SELECT id,timecreated ultimo FROM mdl_logstore_standard_log m where userid='.$usuario.' AND courseid='.$COURSE->id.' ORDER BY id DESC LIMIT 1';
-		$sql='SELECT MAX(timecreated) ultimo FROM mdl_logstore_standard_log m where userid='.$usuario.' AND courseid='.$COURSE->id;
+		//$sql='SELECT id,timecreated ultimo FROM {logstore_standard_log} m where userid='.$usuario.' AND courseid='.$COURSE->id.' ORDER BY id DESC LIMIT 1';
+		$sql='SELECT MAX(timecreated) ultimo FROM {logstore_standard_log} m where userid='.$usuario.' AND courseid='.$COURSE->id;
 		//print_object($sql);
 		if ($evento=$DB->get_record_sql($sql))
 		{
@@ -410,8 +421,8 @@
 			$manana=new DateTime($fecha_fin.' '.$ini.':00:00', core_date::get_user_timezone_object());
 			//$manana=obtener_final($fin,1);
 		}
-		//$sql='SELECT * FROM mdl_logstore_standard_log m where userid='.$usuario.' AND courseid='.$COURSE->id.' AND '.campo_fecha().'>="'.$hoy->format('Y-m-d H:i:s').'" AND '.campo_fecha().'<="'.$manana->format('Y-m-d H:i:s').'"';
-		$sql='SELECT timecreated FROM mdl_logstore_standard_log m where courseid='.$COURSE->id.' AND userid='.$usuario.' AND from_unixtime(m.timecreated)>="'.fecha_servidor($hoy->format('Y-m-d H:i:s')).'" AND from_unixtime(m.timecreated)<="'.fecha_servidor($manana->format('Y-m-d H:i:s')).'"';
+		//$sql='SELECT * FROM {logstore_standard_log} m where userid='.$usuario.' AND courseid='.$COURSE->id.' AND '.campo_fecha().'>="'.$hoy->format('Y-m-d H:i:s').'" AND '.campo_fecha().'<="'.$manana->format('Y-m-d H:i:s').'"';
+		$sql='SELECT id,timecreated FROM {logstore_standard_log} m where courseid='.$COURSE->id.' AND userid='.$usuario.' AND from_unixtime(m.timecreated)>="'.fecha_servidor($hoy->format('Y-m-d H:i:s')).'" AND from_unixtime(m.timecreated)<="'.fecha_servidor($manana->format('Y-m-d H:i:s')).'"';
 		//print_object($sql);
 		$total=0;
 		$total_int=0;

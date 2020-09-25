@@ -526,8 +526,9 @@
 		$arg=array();
 		$resultado .= html_writer::start_tag('table',array("class"=>"table"));
 		$num=0;
-		foreach ($datos as $fila)
-		{
+		if (is_array($datos)) 
+		  foreach ($datos as $fila)
+		  {
 			$span=array();
 			if (count($fila)==1)
 				$span=array('colspan'=>8, 'bgcolor'=>'#eee');

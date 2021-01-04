@@ -1,76 +1,64 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * Control session block.
+ *
+ * @package    block_control_sesion
+ * @copyright  2020 onwards Carlos Contreras
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 $string['pluginname'] = 'Session control';
 $string['control_sesion'] = 'Session control';
 $string['title_block'] = 'Session control block';
 $string['defaulttitle'] = 'Session control';
-$string['titulo'] = 'Block title';
-$string['mensaje'] = 'Additional message';
-$string['hora_ini'] = 'Daily start time';
+$string['title'] = 'Block title';
+$string['message'] = 'Additional message';
+$string['ini_hour'] = 'Daily start time';
 $string['interval'] = 'Maximum minutes interval between actions';
 $string['visible_us'] = 'Details visible to students';
-$string['mostrarcol'] = 'Show colors next to data';
-$string['sin_config'] = 'Unconfigured block';
-$string['interac_dia'] = 'Interactions/day';
-$string['verdetalle'] = 'See data...';
-$string['infotodassesiones'] = 'Course sessions';
-$string['infosesion'] = 'Session details';
+$string['showcol'] = 'Show colors next to data';
+$string['no_config'] = 'Unconfigured block';
+$string['interac_day'] = 'Interactions/day';
+$string['showdetail'] = 'See data...';
+$string['infoallsessions'] = 'Course sessions';
+$string['infosession'] = 'Session details';
 $string['defaultgroup'] = 'Default group';
-$string['registros_entre'] = 'Records between:';
-$string['alumno'] = 'Student:';
-$string['ultimo_inicio'] = 'Last login';
-$string['inicio'] = 'Start';
+$string['records_between'] = 'Records between:';
+$string['student'] = 'Student:';
+$string['last_login'] = 'Last login';
+$string['start'] = 'Start';
 $string['final'] = 'Final';
-$string['mes_ini'] = 'Course start month';
-$string['interacciones'] = 'Interactions';
-$string['tiempo_estimado'] = 'Estimated time';
-$string['total_mes'] = 'Total Month';
-$string['year'] = 'Year';
-$string['curso'] = 'Course';
-$string['lunes'] = 'Monday';
-$string['martes'] = 'Tuesday';
-$string['miercoles'] = 'Wednesday';
-$string['jueves'] = 'Thursday';
-$string['viernes'] = 'Friday';
-$string['sabado'] = 'Saturday';
-$string['domingo'] = 'Sunday';
-$string['enero'] = 'January';
-$string['febrero'] = 'February';
-$string['marzo'] = 'March';
-$string['abril'] = 'April';
-$string['mayo'] = 'May';
-$string['junio'] = 'June';
-$string['julio'] = 'July';
-$string['agosto'] = 'August';
-$string['septiembre'] = 'September';
-$string['octubre'] = 'October';
-$string['noviembre'] = 'November';
-$string['diciembre'] = 'December';
+$string['month_ini'] = 'Course start month';
+$string['interacts'] = 'Interactions';
+$string['estimated_time'] = 'Estimated time';
+$string['month_total'] = 'Total Month';
 $string['abrev_int'] = 'int.';
-$string['detalles'] = 'Details';
-$string['sin_tiempo_dia'] = 'No time recorded on the day';
-$string['estimados'] = 'estimated';
-$string['interac_usuario'] = 'User interactions';
-$string['total'] = 'TOTAL';
-$string['minutos'] = 'minutes';
-$string['segundos'] = 'seconds';
-$string['abrev_fecha'] = 'Y-m-d';
+$string['details'] = 'Details';
+$string['no_time_day'] = 'No time recorded on the day';
+$string['estimated'] = 'estimated';
+$string['user_interacts'] = 'User interactions';
+$string['date_abrev'] = 'Y-m-d';
 $string['and'] = 'and';
-$string['resumen'] = 'Summary';
-$string['detallado'] = 'Detailed';
-$string['por_dias'] = 'For Days';
-$string['por_semanas'] = 'For Weeks';
-$string['por_meses'] = 'For Months';
-$string['detalle_mes'] = 'Month Detail';
-$string['fecha_sesion'] = 'Session Date';
-$string['hasta'] = 'until';
-$string['filtrar'] = 'Filter';
-$string['todos'] = 'All';
-$string['descargar'] = 'Download';
-
-
-
-
-
-
-
-?>
+$string['summary'] = 'Summary';
+$string['detailed'] = 'Detailed';
+$string['for_days'] = 'For Days';
+$string['for_weeks'] = 'For Weeks';
+$string['for_months'] = 'For Months';
+$string['month_detail'] = 'Month Detail';
+$string['session_date'] = 'Session Date';
+$string['until'] = 'until';
+$string['filter'] = 'Filter';

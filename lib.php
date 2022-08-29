@@ -22,8 +22,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 function block_control_sesion_users_list($instance, $user, $detailed = false, $reporttype = 0, $date = "now", $totaldays = 1,
-                        $month = 1, $year = 1, $course = 1, $group = 0, $datefin = "now") {
-    global $COURSE, $DB, $PAGE, $USER, $config;
+                        $month = 1, $year = 1, $course = 1, $group = 0, $datefin = "now", $all = false) {
+    global $COURSE, $DB, $PAGE, $USER, $config, $CFG;
     $dateabrev = get_string('date_abrev', 'block_control_sesion');
     $userfilter = "";
     $rows = array();
@@ -31,6 +31,8 @@ function block_control_sesion_users_list($instance, $user, $detailed = false, $r
     $config = block_control_sesion_get_config($instance);
     $ini = 7;
     $interval = 30;
+    $res["values"] = 0;
+    $res["valuedays"] = 0;
     if (isset($config->ini)) {
         $ini = $config->ini;
     }
@@ -154,9 +156,18 @@ function block_control_sesion_users_list($instance, $user, $detailed = false, $r
                 continue;
             }
             $data = array();
-            $sql = 'FROM {logstore_standard_log} m where userid='.$u->id.' AND courseid='.$COURSE->id
-                .' AND (m.timecreated)>="'.block_control_sesion_serverdate($now->format('Y-m-d H:i:s')).'" AND (m.timecreated)<="'
-                .block_control_sesion_serverdate($tomorrow->format('Y-m-d H:i:s')).'"';
+            $inicio = 'FROM {logstore_standard_log} m where userid='.$u->id.' AND courseid='.$COURSE->id;
+            if ($CFG->dbtype == 'pgsql') {
+                $sql = $inicio
+                .' AND to_timestamp(m.timecreated/1000) >= \''.block_control_sesion_serverdate($now->format('Y-m-d H:i:s'))
+                .'\'::timestamp AND to_timestamp(m.timecreated/1000)<=\''
+                .block_control_sesion_serverdate($tomorrow->format('Y-m-d H:i:s')).'\'::timestamp';
+            } else {
+                $sql = $inicio
+                .' AND (m.timecreated) >= \''.block_control_sesion_serverdate($now->format('Y-m-d H:i:s'))
+                .'\' AND (m.timecreated)<=\''
+                .block_control_sesion_serverdate($tomorrow->format('Y-m-d H:i:s')).'\'';
+            }
             $horaini = '';
             $interval = '';
             if ($hini = $DB->get_record_sql('SELECT MIN(timecreated) timecreated '.$sql)) {
@@ -172,7 +183,7 @@ function block_control_sesion_users_list($instance, $user, $detailed = false, $r
             // Color de la celda resaltada según límites.
             if ($reporttype == 0) {
                 $res = block_control_sesion_dayusertime($u->id, $now->format('Y-m-d'), $ini, $interval, 1,
-                                                        $tomorrow->format('Y-m-d'));
+                                                        $tomorrow->format('Y-m-d'), $all);
                 $time = "&nbsp;";
                 if ($res["total"] != 0) {
                     $time = block_control_sesion_time_sec($res["total"]);
@@ -194,7 +205,7 @@ function block_control_sesion_users_list($instance, $user, $detailed = false, $r
             }
             if ($reporttype == 1) {
                 $res = block_control_sesion_dayusertime($u->id, $now->format('Y-m-d'), $ini, $interval, 1,
-                            $tomorrow->format('Y-m-d'));
+                            $tomorrow->format('Y-m-d'), $all);
                 $time = "&nbsp;";
                 if ($res["total"] != 0) {
                     $time = block_control_sesion_time_sec($res["total"]);
@@ -234,7 +245,7 @@ function block_control_sesion_users_list($instance, $user, $detailed = false, $r
                     array_push($data, '<b>'.$u->firstname." ".$u->lastname.'.</b>');
                 }
                 while ($h <= $final) {
-                    $res = block_control_sesion_dayusertime($u->id, $h->format('Y-m-d'), $ini, $interval, 1, '');
+                    $res = block_control_sesion_dayusertime($u->id, $h->format('Y-m-d'), $ini, $interval, 1, '', $all);
                     $t = $t + $res["total"];
                     $time = "&nbsp;";
                     if ($res["total"] != 0) {
@@ -264,7 +275,7 @@ function block_control_sesion_users_list($instance, $user, $detailed = false, $r
                     if ($now->format("m") != $final->format("m")) {
                         $days = $finalday - $now->format("d") + 1;
                     }
-                    $res = block_control_sesion_dayusertime($u->id, $now->format('Y-m-d'), $ini, $interval, $days, '');
+                    $res = block_control_sesion_dayusertime($u->id, $now->format('Y-m-d'), $ini, $interval, $days, '', $all);
                     $t = $t + $res["total"];
                     $time = "&nbsp;";
                     if ($res["total"] != 0) {
@@ -285,7 +296,7 @@ function block_control_sesion_users_list($instance, $user, $detailed = false, $r
                     $fix = block_control_sesion_fix_coursemonth($a, $course);
                     $now = new DateTime($fix["year"].'-'.$fix["month"].'-01');
                     $days = date ( "t", strtotime($now->format('Y-m-d')));
-                    $res = block_control_sesion_dayusertime($u->id, $now->format('Y-m-d'), $ini, $interval, $days, '');
+                    $res = block_control_sesion_dayusertime($u->id, $now->format('Y-m-d'), $ini, $interval, $days, '', $all);
                     $t = $t + $res["total"];
                     $time = "&nbsp;";
                     if ($res["total"] != 0) {
@@ -315,7 +326,7 @@ function block_control_sesion_users_list($instance, $user, $detailed = false, $r
                 }
                 for ($d = 1; $d <= $days; $d++) {
                     $f = new DateTime($now->format('Y-m-'.$d));
-                    $res = block_control_sesion_dayusertime($u->id, $f->format('Y-m-d'), $ini, $interval, 1, '');
+                    $res = block_control_sesion_dayusertime($u->id, $f->format('Y-m-d'), $ini, $interval, 1, '', $all);
                     $t = $t + $res["total"];
                     $time = "<br>&nbsp;";
                     if ($res["total"] != 0) {
@@ -393,8 +404,8 @@ function block_control_sesion_last_login($user) {
     }
     return "";
 }
-function block_control_sesion_dayusertime($user, $date, $ini, $interval, $totaldays, $datefin = '') {
-    global $COURSE, $DB;
+function block_control_sesion_dayusertime($user, $date, $ini, $interval, $totaldays, $datefin = '', $all = false) {
+    global $COURSE, $DB, $CFG;
     $dateabrev = get_string('date_abrev', 'block_control_sesion');
     if ($ini == "") {
         $ini = "7";
@@ -412,10 +423,22 @@ function block_control_sesion_dayusertime($user, $date, $ini, $interval, $totald
     } else {
         $tomorrow = new DateTime($datefin.' '.$ini.':00:00', core_date::get_user_timezone_object());
     }
-    $sql = 'SELECT id,timecreated FROM {logstore_standard_log} m where courseid='.$COURSE->id.' AND userid='
-            .$user.' AND from_unixtime(m.timecreated)>="'.block_control_sesion_serverdate($now->format('Y-m-d H:i:s'))
+    $coursefilter = ' courseid='.$COURSE->id;
+    if ($all) {
+        $coursefilter = ' courseid<>-1';
+    }
+    $userfilter = ' userid='.$user;
+    if ($CFG->dbtype == 'pgsql') {
+        $sql = 'SELECT id,timecreated FROM {logstore_standard_log} m where '.$coursefilter.' AND '.$userfilter
+            .' AND to_timestamp(m.timecreated)>=\''.block_control_sesion_serverdate($now->format('Y-m-d H:i:s'))
+            .'\'::timestamp AND to_timestamp(m.timecreated)<=\''.block_control_sesion_serverdate($tomorrow->format('Y-m-d H:i:s'))
+            .'\'::timestamp ORDER BY id';
+    } else {
+        $sql = 'SELECT id,timecreated FROM {logstore_standard_log} m where '.$coursefilter.' AND '.$userfilter
+            .' AND from_unixtime(m.timecreated)>="'.block_control_sesion_serverdate($now->format('Y-m-d H:i:s'))
             .'" AND from_unixtime(m.timecreated)<="'.block_control_sesion_serverdate($tomorrow->format('Y-m-d H:i:s'))
             .'" ORDER BY id';
+    }
     $total = 0;
     $step = "";
     $result["start"] = '';
@@ -596,17 +619,31 @@ function block_control_sesion_monthdays($month, $year) {
     return $f->format('t');
 }
 function block_control_sesion_time_gap() {
-    global $DB;
+    global $DB, $CFG;
     $difmyutc = 0;
     $totalgap = 0;
-    if ($res = $DB->get_record_sql('SELECT TIMESTAMPDIFF(HOUR,UTC_TIMESTAMP(),LOCALTIMESTAMP()) dif,UTC_TIMESTAMP() hutc')) {
-        // Server gap.
-        $difmyutc = $res->dif;
-        // User Country gap.
-        $now = new DateTime("now");
-        $utc = new DateTime($res->hutc);
-        $diff = date_diff($now, $utc);
-        $totalgap = -($difmyutc - $diff->h);
+    if ($CFG->dbtype == 'pgsql') {
+        $sql = "SELECT extract (epoch from (LOCALTIMESTAMP - now() at time zone 'utc')/3600)::integer dif "
+               .",now() at time zone 'utc' hutc";
+        if ($res = $DB->get_record_sql($sql)) {
+            // Server gap.
+            $difmyutc = $res->dif;
+            // User Country gap.
+            $now = new DateTime("now");
+            $utc = new DateTime($res->hutc);
+            $diff = date_diff($now, $utc);
+            $totalgap = -($difmyutc - $diff->h);
+        }
+    } else {
+        if ($res = $DB->get_record_sql('SELECT TIMESTAMPDIFF(HOUR,UTC_TIMESTAMP(),LOCALTIMESTAMP()) dif,UTC_TIMESTAMP() hutc')) {
+            // Server gap.
+            $difmyutc = $res->dif;
+            // User Country gap.
+            $now = new DateTime("now");
+            $utc = new DateTime($res->hutc);
+            $diff = date_diff($now, $utc);
+            $totalgap = -($difmyutc - $diff->h);
+        }
     }
     return $totalgap;
 }

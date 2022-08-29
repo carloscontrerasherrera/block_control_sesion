@@ -23,6 +23,7 @@
  */
 
 // This file is the code of how the block is displayed in the sidebar.
+defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot.'/blocks/control_sesion/lib.php');
 
 class block_control_sesion extends block_base {
@@ -54,7 +55,7 @@ class block_control_sesion extends block_base {
             $id = $USER->id;
         }
         $this->content->text .= block_control_sesion_table_data(block_control_sesion_users_list($i, $USER->id, false, 1,
-         (new DateTime("now"))->format("Y-m-d"), 1, 1, 2020, 2020, 0, (new DateTime("now"))->format("Y-m-d")));
+         (new DateTime("now"))->format("Y-m-d"), 1, 1, 2020, 2020, 0, (new DateTime("now"))->format("Y-m-d"), false));
         if (empty($this->config->visibleus)) {
             // Block not configured yet.
             if ($showsessions) {

@@ -21,7 +21,7 @@
  * @copyright  2020 onwards Carlos Contreras
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-require_once('../../config.php');
+require_once(__DIR__ . '/../../config.php');
 require_once($CFG->dirroot.'/blocks/control_sesion/lib.php');
 require_once($CFG->dirroot.'/blocks/control_sesion/block_control_sesion_filtro_form.php');
 require_once($CFG->libdir.'/excellib.class.php');
@@ -36,6 +36,7 @@ $config = block_control_sesion_get_config($instance);
 $ini = $config->ini;
 $interval = $config->interval;
 $reporttype = optional_param('t', 0, PARAM_INT);
+$all = optional_param('all', false, PARAM_BOOL);
 $detailed = optional_param('a', false, PARAM_BOOL);
 $download = optional_param('d', false, PARAM_BOOL);
 $iduser = optional_param('u', $USER->id, PARAM_INT);
@@ -50,7 +51,7 @@ $datefin = new DateTime($ff);
 $tipofiltro = $reporttype;
 $groupfiltro = $group;
 if (!$c = $DB->get_record('course', array('id' => $idcourseid))) {
-    print_error('invalidcourse', 'control_sesion', $idcourseid);
+    moodle_exception('invalidcourse' , 'control_sesion' , '' , null , null);
 }
 require_login($c);
 $context = context_course::instance($COURSE->id);
@@ -123,7 +124,7 @@ if ($fromform = $filtro->get_data()) {
     $datefin = $ff;
 }
 $results = block_control_sesion_users_list($instance, $iduser, $detailed, $reporttype, $date->format('Y-m-d'), $totaldays, $month,
-                                $year, $idcourse, $group, $datefin->format('Y-m-d'));
+                                $year, $idcourse, $group, $datefin->format('Y-m-d'), $all);
 if ($download) {
     block_control_sesion_download_data($results);
     return;

@@ -22,8 +22,10 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
  // Form for header filters.
-require_once('../../config.php');
+defined('MOODLE_INTERNAL') || die();
+require_once(__DIR__ . '/../../config.php');
 require_once("{$CFG->libdir}/formslib.php");
+require_login();
 
 class block_control_sesion_filtro_form extends moodleform {
     public function definition() {
